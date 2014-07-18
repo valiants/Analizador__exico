@@ -160,6 +160,230 @@ token_tag* tokenCreate()
 
     return retval;
 }
+// Codigo del flotante
+token *is_Number(FILE *pf)
+{
+      int k=0;
+      //float t=0;
+      token *t;
+      char c;
+      int state=0, is_token=FALSE, count=0;
+      long int pos=0;
+      pos = ftell(pf);
+      do{
+          switch(state)
+          {
+                case 0:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A1;
+                              count ++;
+                          }
+                     else if(c=='+'||c=='-')
+                          {
+                              state=1;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                          }
+                     break;
+                case 1:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A1;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                          }
+                     break;
+                case A1:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A2;
+                              count ++;
+                          }
+                     else if(c=='.')
+                          {
+                              state=A2;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                              is_token=TRUE;
+                          }
+                     break;
+                case A2:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A2;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                              is_token=TRUE;
+                          }
+                     break;
+          }
+          
+          }while(state=!ERROR);
+          
+          if(is_token)
+          {
+                  fseek(pf,pos, SEEK_SET);
+                  t=tokenCreate();
+                  //t=(char *)malloc(sizeof(char)*count+1);
+                  t-> lexema = (char*)malloc(sizeof(char)*(count+1));
+                  for(k=0; k<count; k++)
+                  {
+                       t->lexema[k]=fgetc(pf);
+                  }
+                       t->lexema[count]='\0';
+                       t-> id = ID_NUMBER;
+          }
+          else
+                  return NULL;
+      return t;
+}
+
+token *tokenCreate()
+{
+      token *retval;
+      retval=(token*)malloc(sizeof(token));
+      retval->lexema=NULL;
+      retval-> id=0;
+      return retval;
+}
+
+// Codigo del entero
+token *Integer(FILE *pf)
+{
+      int k=0;
+      //float t=0;
+      token *t;
+      char c;
+      int state=0, is_token=FALSE, count=0;
+      long int pos=0;
+      pos = ftell(pf);
+      do{
+          switch(state)
+          {
+                case 0:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A1;
+                              count ++;
+                          }
+                     else if(c=='+'||c=='-')
+                          {
+                              state=1;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                          }
+                     break;
+                      case 1:
+                     c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A1;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                          }
+                     break;
+                     case 2:
+                         c=fgetc(pf);
+                     if(isNumber(c))
+                          {
+                              state=A1;
+                              count ++;
+                          }
+                     else
+                          {
+                              state=ERROR;
+                              is_token=TRUE;
+                          }
+                     break;
+          }
+          
+          }while(state!=ERROR); 
+          if(is_token)
+          {
+                  fseek(pf,pos, SEEK_SET);
+                  t=tokenCreate();
+                  //t=(char *)malloc(sizeof(char)*count+1);
+                  t-> lexema = (char*)malloc(sizeof(char)*(count+1));
+                  for(k=0; k<count; k++)
+                  {
+                       t->lexema[k]=fgetc(pf);
+                  }
+                       t->lexema[count]='\0';
+                       t-> id = ID_ENTERO;
+          }
+          else
+                  return NULL;
+      return t;
+}     
+
+// Codigo del operador
+token *Operador(FILE *pf)
+{
+    int k=0;
+      //float t=0;
+      token *t;
+      char c;
+      int state=0, is_token=FALSE, count=0;
+      long int pos=0;
+      pos = ftell(pf);
+          switch(state)
+          {
+                case 0:
+                     c=fgetc(pf);
+                     if(c=='+'||c=='-'||c=='*'||c=='/'||c=='%')
+                     {
+                              count ++;                                 
+                              state=ERROR;
+                              is_token=TRUE;
+                     }
+                     else
+                     {
+                              state=ERROR;
+                     }
+                     break;
+          }
+          if(is_token)
+          {
+                  fseek(pf,pos, SEEK_SET);
+                  t=tokenCreate();
+                  //t=(char *)malloc(sizeof(char)*count+1);
+                  t-> lexema = (char*)malloc(sizeof(char)*(count+1));
+                  for(k=0; k<=count; k++)
+                  {
+                       t->lexema[k]=fgetc(pf);
+                  }
+                       t->lexema[count]='\0';
+                       t-> id = ID_OPERADOR;
+          }
+          else
+                  return NULL;
+      return t;
+                          
+}
 
 void tokenfree(token_tag *t)
 {
